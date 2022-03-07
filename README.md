@@ -10,6 +10,8 @@
 <h2>Info:</h2>
 Needs to be executed as root or with sudo permissions (to install the needed dependencies)</br>
 </br>
+After a successfull installation, the php-fpm will be installed to /opt/your-php-version/, will run as user www-data and has the opcache and redis extensions enabled.</br>
+</br>
 <h2>Usage:</h2>
 Clone git repo, chmod +x c-install-php.sh, execute script as shown below</br>
 </br>
