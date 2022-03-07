@@ -15,7 +15,7 @@ Clone git repo, chmod +x c-install-php.sh, execute script as shown below</br>
 </br>
 Specify the wanted PHP-Versionnumber after the script name and 'Yes' or 'No' if this script should install the needed apt packages</br>
 </br>
-To check for elp - specify the -h|--help option (./c-install-php.sh --help)</br>
+To check for help - specify the -h|--help flag (./c-install-php.sh --help)</br>
 </br>
 <h2>Syntax:</h2>
 ./c-install-php.sh PHP-VERSIONUMBER yes|no<br/>
