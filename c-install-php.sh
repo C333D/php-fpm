@@ -168,7 +168,7 @@ elif [ -z $2 ]; then
 	echo "!- Therefore skipping the apt actions..."
 	echo "!----"
 	echo "!- If you forgot to specify \"yes\""
-	echo "!- cancel the script in the next 10 seconds by hand"
+	echo "!- cancel the script in the next 10 seconds by hand via Ctrl + C"
 	echo "!- and rerun the script with the \"yes\" option!"
 	sleep 10
 fi
@@ -365,7 +365,7 @@ if pgrep -f php-$1-fpm >/dev/null 2>&1; then
         echo "!-                                                                           -!"
         echo "!- Insert the following to your apache vhost configuration:                  -!"
         echo "!- <FilesMatch \.php$>                                                       -!"
-        echo "!- SetHandler \"proxy:unix:/php-sockets/php-$1-fpm|fcgi://localhost/\"     -!"
+        echo "!- SetHandler \"proxy:unix:/php-sockets/php-$1-fpm|fcgi://localhost/\"       -!"
         echo "!- </FilesMatch>                                                             -!"
         echo "!- AddType text/html .php                                                    -!"
         echo "!-                                                                           -!"
