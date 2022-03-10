@@ -84,8 +84,8 @@ elif [[ `wget https://www.php.net/distributions/php-$p.tar.gz 2>&1 | grep 'ERROR
         HELP
         exit 1;
 else 
-	echo "!- Checking if provided php version is vaild"
-	echo "!- Php version is vaild!"
+	echo "!- Checking if provided php version is valid"
+	echo "!- Php version is valid!"
 fi
 }
 
