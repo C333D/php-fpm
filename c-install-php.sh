@@ -292,7 +292,7 @@ WEBTYPE()
                         cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
-                elif [[ $phpversion == "8.0" ]]; then
+		elif [[ $phpversion == "8.0" ]] || [[ $phpversion == "8.1" ]]; then
                         cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
@@ -325,7 +325,7 @@ CRMTYPE()
                         cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log 
                         echo "!- Configuration done - check logfile \"$log\" for further information"
-                elif [[ $phpversion == "8.0" ]]; then
+                elif [[ $phpversion == "8.0" ]] || [[ $phpversion == "8.1" ]]; then
                         cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear --with-imap --with-imap-ssl --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
@@ -432,6 +432,8 @@ elif [[ $p == "5.6."* ]]; then
         sed -i 's/KKKKKKKKK/20131226/g' /opt/php-$p-fpm/lib/php.ini
 elif [[ $p == "8.0."* ]]; then
         sed -i 's/KKKKKKKKK/20200930/g' /opt/php-$p-fpm/lib/php.ini
+elif [[ $p == "8.1."* ]]; then
+        sed -i 's/KKKKKKKKK/20210902/g' /opt/php-$p-fpm/lib/php.ini
 else
                 echo "!- IMPORTANT:"
                 echo "!- Cannot change opcache.so path in /opt/php-$p-fpm/lib/php.ini"
