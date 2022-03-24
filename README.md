@@ -1,12 +1,12 @@
-# Install and configure any php-fpm version for Ubuntu automatically.
+# Install and configure any php-fpm version for Ubuntu/Debian automatically.
 
 <h2>Supported Platforms:</h2>
 
- - Ubuntu 14.04 LTS
- - Ubuntu 16.04 LTS
- - Ubuntu 18.04 LTS
- - Ubuntu 20.04 LTS
- - Ubuntu 22.04 LTS
+ - Ubuntu 14.04 LTS / Debian 8
+ - Ubuntu 16.04 LTS / Debian 9
+ - Ubuntu 18.04 LTS / Debian 10
+ - Ubuntu 20.04 LTS / Debian 11
+ - Ubuntu 22.04 LTS / Debian 12
 
 <h2>Info:</h2>
 Needs to be executed as root or with sudo permissions (to install the needed dependencies). 
