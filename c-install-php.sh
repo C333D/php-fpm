@@ -127,6 +127,9 @@ fi
 ###define checklibcclient function
 CHECKLIBCCLIENT()
 {
+	if [ ! -f "/usr/lib/libc-client.a" ]; then
+		apt-get install -y libc-client-dev > /dev/null 2>&1
+	fi
         if [ ! -f "/usr/lib/x86_64-linux-gnu/libc-client.a" ]; then
                         echo "!- Linking libc-client"
                         ln -s /usr/lib/libc-client.a /usr/lib/x86_64-linux-gnu/libc-client.a
@@ -169,10 +172,10 @@ CHECKBUILDNUMBER()
                 checkbuild=7.3
         elif [[ ! -z $(apt-cache search php7.1) ]]; then
                 checkbuild=7.1
-        elif [[ ! -z $(apt-cache search php7.0) ]]; then
-                checkbuild=7.0
-        elif [[ ! -z $(apt-cache search php5.6) ]]; then
-                checkbuild=5.6
+        elif [[ ! -z $(apt-cache search php7) ]]; then
+                checkbuild=7
+        elif [[ ! -z $(apt-cache search php5) ]]; then
+                checkbuild=5
         fi
 }
 
@@ -225,70 +228,82 @@ APTACTION()
 		elif cat /etc/issue | grep -q Debian; then
 			system=Debian
 			systemnumber=$(cat /etc/issue | grep Debian | cut -f3 -d" ")
-                        if [[ $systemnumber == "22.04" ]] || [[ $systemnumber == "12" ]]; then
-                                echo "!- $system $systemnumber detected"
-                                echo "!- Starting apt update & install"
-                                apt update > /dev/null 2>&1
-                                CHECKBUILDNUMBER
-                                apt build-dep php$checkbuild -y > /dev/null 2>&1
-                                apt install zip unzip autoconf automake libtool libsodium-dev libargon2-dev redis-server rsync -y > /dev/null 2>&1
-                        elif [[ $systemnumber == "20.04" ]] || [[ $systemnumber == "11" ]]; then
-                                echo "!- $system $systemnumber detected"
-                                echo "!- Starting apt update & install"
-                                apt update > /dev/null 2>&1
-                                CHECKBUILDNUMBER
-                                apt build-dep php$checkbuild -y > /dev/null 2>&1
-                                apt install zip unzip autoconf automake libtool libsodium-dev libargon2-dev redis-server rsync -y > /dev/null 2>&1
-                        elif [[ $systemnumber == "18.04" ]] || [[ $systemnumber == "10" ]]; then
-                                echo "!- $system $systemnumber detected"
-                                echo "!- Starting apt update & install"
-                                apt update > /dev/null 2>&1
-                                CHECKBUILDNUMBER
-                                apt build-dep php$checkbuild -y > /dev/null 2>&1
-                                apt install zip unzip autoconf automake libtool libsodium-dev libargon2-dev redis-server rsync -y > /dev/null 2>&1
-                        elif [[ $systemnumber == "16.04" ]] || [[ $systemnumber == "9" ]]; then
-                                echo "!- $system $systemnumber detected"
-                                echo "!- Starting apt update & install"
-                                apt update > /dev/null 2>&1
-                                CHECKBUILDNUMBER
-                                apt build-dep php$checkbuild -y > /dev/null 2>&1
-                                apt install zip unzip autoconf automake libtool redis-server libsodium-dev rsync -y > /dev/null 2>&1
-                                if [[ ! -d "/usr/src/php/argon2" ]]; then
-                                        mkdir -p /usr/src/php/argon2
-                                fi
-                                wget https://github.com/P-H-C/phc-winner-argon2/archive/refs/heads/master.zip -O /usr/src/php/argon2/argon2.zip > /dev/null 2>&1
-                                unzip /usr/src/php/argon2/argon2.zip
-                                cd /usr/src/php/argon2/phc-winner-argon2/ && ./configure && make && make install > /dev/null 2>&1
-                                cd $basedir
-                        elif [[ $systemnumber == "14.04" ]] || [[ $systemnumber == "8" ]]; then
-                                echo "!- $system $systemnumber detected"
-                                echo "!- Starting apt update & install"
-                                apt update > /dev/null 2>&1
-                                CHECKBUILDNUMBER
-                                apt build-dep php$checkbuild -y > /dev/null 2>&1
-                                apt install zip unzip autoconf automake libtool redis-server libsodium-dev rsync -y > /dev/null 2>&1
-                                if [[ ! -d "/usr/src/php/argon2" ]]; then
-                                        mkdir -p /usr/src/php/argon2
-                                fi
-                                wget https://github.com/P-H-C/phc-winner-argon2/archive/refs/heads/master.zip -O /usr/src/php/argon2/argon2.zip > /dev/null 2>&1
-                                unzip /usr/src/php/argon2/argon2.zip
-                                cd /usr/src/php/argon2/phc-winner-argon2/ && ./configure && make && make install > /dev/null 2>&1
-                                cd $basedir
-                        else
-                                echo "!- Your system version is not supported yet"
-                                echo "!- No apt actions are performed!"
-                                echo "!- Please install the needed dependencies manually"
-                                echo "!- and rerun the script with the \"no\" option!"
-                                echo "!- Exit script -!"
-                                exit 1;
-                        fi
                 else
-                echo "!- Cannot detect current system version"
-                echo "!- No apt actions are performed!"
-                echo "!- Please install the needed dependencies manually"
-                echo "!- and rerun the script with the \"-a no\" option!"
-                echo "!- Exit script -!"
-                exit 1;
+                         echo "!- Cannot detect current system version"
+                         echo "!- No apt actions are performed!"
+                         echo "!- Please install the needed dependencies manually"
+                         echo "!- and rerun the script with the \"-a no\" option!"
+                         echo "!- Exit script -!"
+                         exit 1;
+		fi
+                                                                                                                                
+                if [[ $systemnumber == "22.04" ]] || [[ $systemnumber == "12" ]]; then
+                         echo "!- $system $systemnumber detected"
+                         echo "!- Starting apt update & install"
+                         apt-get update > /dev/null 2>&1
+                         CHECKBUILDNUMBER
+                         apt-get build-dep php$checkbuild -y > /dev/null 2>&1
+                         apt-get install zip unzip autoconf automake libtool libmcrypt-dev libsodium-dev libargon2-dev redis-server rsync -y > /dev/null 2>&1
+			 CHECKLIBCCLIENT
+                elif [[ $systemnumber == "20.04" ]] || [[ $systemnumber == "11" ]]; then
+                         echo "!- $system $systemnumber detected"
+                         echo "!- Starting apt update & install"
+                         apt-get update > /dev/null 2>&1
+                         CHECKBUILDNUMBER
+                         apt-get build-dep php$checkbuild -y > /dev/null 2>&1
+                         apt-get install zip unzip autoconf automake libtool libmcrypt-dev libsodium-dev libargon2-dev redis-server rsync -y > /dev/null 2>&1
+			 CHECKLIBCCLIENT
+                elif [[ $systemnumber == "18.04" ]] || [[ $systemnumber == "10" ]]; then
+                         echo "!- $system $systemnumber detected"
+                         echo "!- Starting apt update & install"
+                         apt-get update > /dev/null 2>&1
+                         CHECKBUILDNUMBER
+                         apt-get build-dep php$checkbuild -y > /dev/null 2>&1
+                         apt-get install zip unzip autoconf automake libtool libmcrypt-dev libsodium-dev libargon2-dev redis-server rsync -y > /dev/null 2>&1
+			 CHECKLIBCCLIENT
+                elif [[ $systemnumber == "16.04" ]] || [[ $systemnumber == "9" ]]; then
+                         echo "!- $system $systemnumber detected"
+                         echo "!- Starting apt update & install"
+                         apt-get update > /dev/null 2>&1
+                         CHECKBUILDNUMBER
+                         apt-get build-dep php$checkbuild -y > /dev/null 2>&1
+                         apt-get install zip unzip autoconf automake libtool libmcrypt-dev redis-server libsodium-dev rsync -y > /dev/null 2>&1
+			 CHECKLIBCCLIENT
+                         if [ ! -d "/usr/src/php/argon2" ]; then
+	                 	mkdir -p /usr/src/php/argon2
+                         fi
+                         wget https://github.com/P-H-C/phc-winner-argon2/archive/refs/heads/master.zip -O /usr/src/php/argon2/argon2.zip > /dev/null 2>&1
+			 if [ ! -d "/usr/src/php/argon2/phc-winner-argon2-master" ]; then
+                   	 	unzip /usr/src/php/argon2/argon2.zip -d /usr/src/php/argon2/ > /dev/null 2>&1
+                         	cd /usr/src/php/argon2/phc-winner-argon2-master/ && ./configure && make && make install > /dev/null 2>&1
+                         fi
+                         rm /usr/src/php/argon2/argon2.zip
+                         cd $basedir
+                elif [[ $systemnumber == "14.04" ]] || [[ $systemnumber == "8" ]]; then
+                         echo "!- $system $systemnumber detected"
+                         echo "!- Starting apt update & install"
+                         apt-get update > /dev/null 2>&1
+                         CHECKBUILDNUMBER
+                         apt-get build-dep php$checkbuild -y > /dev/null 2>&1
+                         apt-get install zip unzip autoconf automake libtool libmcrypt-dev redis-server libsodium-dev rsync -y > /dev/null 2>&1
+			 CHECKLIBCCLIENT
+                         if [ ! -d "/usr/src/php/argon2" ]; then
+	                         mkdir -p /usr/src/php/argon2
+                         fi
+                         wget https://github.com/P-H-C/phc-winner-argon2/archive/refs/heads/master.zip -O /usr/src/php/argon2/argon2.zip > /dev/null 2>&1
+                         if [ ! -d "/usr/src/php/argon2/phc-winner-argon2-master" ]; then
+                         	unzip /usr/src/php/argon2/argon2.zip -d /usr/src/php/argon2/ > /dev/null 2>&1
+                         	cd /usr/src/php/argon2/phc-winner-argon2-master/ && ./configure && make && make install > /dev/null 2>&1
+                         fi
+			 rm /usr/src/php/argon2/argon2.zip
+                         cd $basedir
+                else
+                         echo "!- Your system version is not supported yet"
+                         echo "!- No apt actions are performed!"
+                         echo "!- Please install the needed dependencies manually"
+                         echo "!- and rerun the script with the \"no\" option!"
+                         echo "!- Exit script -!"
+                         exit 1;
                 fi
 }
 
@@ -315,7 +330,7 @@ WEBTYPE()
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.1" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysql --with-pdo-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/run/mysqld/mysqld.sock --enable-mysqlnd >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/run/mysqld/mysqld.sock --enable-mysqlnd >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.0" ]]; then
@@ -323,7 +338,7 @@ WEBTYPE()
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "5.6" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
 		elif [[ $phpversion == "8.0" ]] || [[ $phpversion == "8.1" ]]; then
@@ -352,7 +367,7 @@ CRMTYPE()
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.1" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysql --with-pdo-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/run/mysqld/mysqld.sock --enable-mysqlnd --with-ldap >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/run/mysqld/mysqld.sock --enable-mysqlnd --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.0" ]]; then
@@ -360,7 +375,7 @@ CRMTYPE()
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "5.6" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear --with-ldap >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log 
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "8.0" ]] || [[ $phpversion == "8.1" ]]; then
