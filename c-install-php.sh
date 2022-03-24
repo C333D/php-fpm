@@ -168,7 +168,7 @@ DOWNLOADPHP()
                         Yes ) echo "!- Backing up the old php version"
                               if [ -d "/usr/src/php/php-$p/" ]; then
                                  echo "!- Move old php-$p source dir to php-$p-backup-$nower"
-                                 rsync -a --ignore-existing --remove-source-files /usr/src/php/php-$p/ /usr/src/php/php-$p-backup-$nower/ && rmdir /usr/src/php/php-
+                                 rsync -a --ignore-existing --remove-source-files /usr/src/php/php-$p/ /usr/src/php/php-$p-backup-$nower/ && rmdir /usr/src/php/php-$p
                               fi
                               if [ -d "/opt/php-$p-fpm/" ]; then
                                  echo "!- Move old php-$p install dir to php-$p-fpm-backup-$nower"
