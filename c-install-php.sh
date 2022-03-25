@@ -276,6 +276,9 @@ APTACTION()
 			 if [ ! -d "/usr/src/php/argon2/phc-winner-argon2-master" ]; then
                    	 	unzip /usr/src/php/argon2/argon2.zip -d /usr/src/php/argon2/ > /dev/null 2>&1
                          	cd /usr/src/php/argon2/phc-winner-argon2-master/ && ./configure && make && make install > /dev/null 2>&1
+			 else
+                         	echo "!- Directory \"/usr/src/php/argon2/phc-winner-argon2-master\" already exists!"
+                         	echo "!- Assuming argon2 is already installed (skipping configure / make / make install)"
                          fi
                          rm /usr/src/php/argon2/argon2.zip
                          cd $basedir
@@ -294,6 +297,9 @@ APTACTION()
                          if [ ! -d "/usr/src/php/argon2/phc-winner-argon2-master" ]; then
                          	unzip /usr/src/php/argon2/argon2.zip -d /usr/src/php/argon2/ > /dev/null 2>&1
                          	cd /usr/src/php/argon2/phc-winner-argon2-master/ && ./configure && make && make install > /dev/null 2>&1
+                         else
+	                         echo "!- Directory \"/usr/src/php/argon2/phc-winner-argon2-master\" already exists!"
+	                         echo "!- Assuming argon2 is already installed (skipping configure / make / make install)"
                          fi
 			 rm /usr/src/php/argon2/argon2.zip
                          cd $basedir
