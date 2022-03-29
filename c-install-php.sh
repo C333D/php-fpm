@@ -187,9 +187,9 @@ DOWNLOADPHP()
         echo "!- Checking if php-$p already exists"
         if [[ -d "/usr/src/php/php-$p/" || -d "/opt/php-$p-fpm/" ]]; then
             echo "!- php-$p already exists! Backup the exsisting php version?"
-            select yn in "Yes" "No"; do
+            select yn in "\"Yes\" [press 1]" "\"No\" [press 2]"; do
                 case $yn in
-                        Yes ) echo "!- Backing up the old php version"
+                        "\"Yes\" [press 1]" ) echo "!- Backing up the old php version"
                               if [ -d "/usr/src/php/php-$p/" ]; then
                                  echo "!- Move old php-$p source dir to php-$p-backup-$nower"
                                  rsync -a --ignore-existing --remove-source-files /usr/src/php/php-$p/ /usr/src/php/php-$p-backup-$nower/ && find /usr/src/php/php-$p -depth -type d -empty -delete
@@ -202,7 +202,7 @@ DOWNLOADPHP()
                               tar xzf php-$p.tar.gz -C /usr/src/php
                               break
                               ;;
-                        No )  echo "!- Not backing up the old php version"
+                        "\"No\" [press 2]" )  echo "!- Not backing up the old php version"
 			      echo "!- Overwriting the exsisting php version"
                               tar xzf php-$p.tar.gz -C /usr/src/php
                               break
