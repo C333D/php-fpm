@@ -572,7 +572,6 @@ chmod +x /etc/init.d/php-$p-fpm
 /etc/init.d/php-$p-fpm start > /dev/null 2>&1
 
 
-
 ###Symlink to current socket
 AUTOMATIC
 
