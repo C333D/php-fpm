@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #
-# c-install-php.sh - (c) by C333D - 03/2022
-# build v2.1
+# c-install-php.sh - (c) by C333D 
+# build v2.2
 #
 
 ###define variables
@@ -22,12 +22,13 @@ HELP()
         echo "!- PHP version:   -p \"PHPVERSION\"                                              -!"
         echo "!- APT actions:   -a \"yes|ja\" or \"no|nein\"                                     -!"
         echo "!- TYPE:          -t \"web|typo\" or \"crm\"                                       -!"
+	echo "!- AUTOMATIC:     -n                                                           -!"
         echo "!-                                                                             -!"
         echo "!- Syntax:                                                                     -!"
         echo "!- ./c-install-php.sh -p PHPVERSION -a yes|no -t typo|web|crm                  -!"
         echo "!-                                                                             -!"
         echo "!- Example 1:                                                                  -!"
-        echo "!- ./c-install-php.sh -p 7.4.24 -a no -t typo                                  -!"
+        echo "!- ./c-install-php.sh -p 7.4.24 -a no -t typo -n                               -!"
         echo "!- Example 2:                                                                  -!"
         echo "!- sudo ./c-install-php.sh -p 8.0.11 -a yes -t crm                             -!"
         echo "!-                                                                             -!"
@@ -76,7 +77,7 @@ CHECKPARAM-P()
 {
 if [ -z "${p}" ]; then
 	MISSINGPARAM
-elif [[ `wget https://www.php.net/distributions/php-$p.tar.gz 2>&1 | grep 'ERROR 404: Not Found.'` ]]; then
+elif [[ `wget https://www.php.net/distributions/php-$p.tar.gz 2>&1 | grep '404: Not Found.'` ]]; then
         echo "!- Checking if provided php version is valid"
         echo "!- This: \"$p\" is not a valid php version!"
         echo "!- Please specify a valid php version to continue"
@@ -170,6 +171,8 @@ CHECKBUILDNUMBER()
                 checkbuild=7.4
         elif [[ ! -z $(apt-cache search php7.3) ]]; then
                 checkbuild=7.3
+	elif [[ ! -z $(apt-cache search php7.2) ]]; then
+                checkbuild=7.2
         elif [[ ! -z $(apt-cache search php7.1) ]]; then
                 checkbuild=7.1
         elif [[ ! -z $(apt-cache search php7) ]]; then
@@ -186,33 +189,46 @@ DOWNLOADPHP()
 	CHECKDIR
         echo "!- Checking if php-$p already exists"
         if [[ -d "/usr/src/php/php-$p/" || -d "/opt/php-$p-fpm/" ]]; then
-            echo "!- php-$p already exists! Backup the exsisting php version?"
-            select yn in "\"Yes\" [press 1]" "\"No\" [press 2]"; do
-                case $yn in
-                        "\"Yes\" [press 1]" ) echo "!- Backing up the old php version"
-                              if [ -d "/usr/src/php/php-$p/" ]; then
-                                 echo "!- Move old php-$p source dir to php-$p-backup-$nower"
-                                 rsync -a --ignore-existing --remove-source-files /usr/src/php/php-$p/ /usr/src/php/php-$p-backup-$nower/ && find /usr/src/php/php-$p -depth -type d -empty -delete
-                              fi
-                              if [ -d "/opt/php-$p-fpm/" ]; then
-                                 echo "!- Move old php-$p install dir to php-$p-fpm-backup-$nower"
-                                 rsync -a --ignore-existing --remove-source-files /opt/php-$p-fpm/ /opt/php-$p-fpm-backup-$nower/ && find /opt/php-$p-fpm -depth -type d -empty -delete
-                              fi
-                              echo "!- Extracting the new php version to /usr/src/php"
-                              tar xzf php-$p.tar.gz -C /usr/src/php
-                              break
-                              ;;
-                        "\"No\" [press 2]" )  echo "!- Not backing up the old php version"
-			      echo "!- Overwriting the exsisting php version"
-                              tar xzf php-$p.tar.gz -C /usr/src/php
-                              break
-                              ;;
-                esac
-            done
-            else
-                echo "!- No old version deteced"
-                echo "!- Extracting the new php version to /usr/src/php"
-                tar xzf php-$p.tar.gz -C /usr/src/php
+		if [[ "$auto" == "true" ]]; then
+			if [ -d "/usr/src/php/php-$p/" ]; then
+                        	echo "!- Move old php-$p source dir to php-$p-backup-$nower"
+	                        rsync -a --ignore-existing --remove-source-files /usr/src/php/php-$p/ /usr/src/php/php-$p-backup-$nower/ && find /usr/src/php/php-$p -depth -type d -empty -delete
+                        fi
+                        if [ -d "/opt/php-$p-fpm/" ]; then
+	                        echo "!- Move old php-$p install dir to php-$p-fpm-backup-$nower"
+                                rsync -a --ignore-existing --remove-source-files /opt/php-$p-fpm/ /opt/php-$p-fpm-backup-$nower/ && find /opt/php-$p-fpm -depth -type d -empty -delete
+                        fi
+                        echo "!- Extracting the new php version to /usr/src/php"
+                        tar xzf php-$p.tar.gz -C /usr/src/php
+		elif [[ "$auto" != "true" ]]; then
+			echo "!- php-$p already exists! Backup the exsisting php version?"
+			select yn in "\"Yes\" [press 1]" "\"No\" [press 2]"; do
+			case $yn in
+				"\"Yes\" [press 1]" ) echo "!- Backing up the old php version"
+	                              if [ -d "/usr/src/php/php-$p/" ]; then
+	                                 echo "!- Move old php-$p source dir to php-$p-backup-$nower"
+	                                 rsync -a --ignore-existing --remove-source-files /usr/src/php/php-$p/ /usr/src/php/php-$p-backup-$nower/ && find /usr/src/php/php-$p -depth -type d -empty -delete
+	                              fi
+	                              if [ -d "/opt/php-$p-fpm/" ]; then
+	                                 echo "!- Move old php-$p install dir to php-$p-fpm-backup-$nower"
+	                                 rsync -a --ignore-existing --remove-source-files /opt/php-$p-fpm/ /opt/php-$p-fpm-backup-$nower/ && find /opt/php-$p-fpm -depth -type d -empty -delete
+	                              fi
+	                              echo "!- Extracting the new php version to /usr/src/php"
+	                              tar xzf php-$p.tar.gz -C /usr/src/php
+	                              break
+	                              ;;
+	                        "\"No\" [press 2]" )  echo "!- Not backing up the old php version"
+				      echo "!- Overwriting the exsisting php version"
+	                              tar xzf php-$p.tar.gz -C /usr/src/php
+	                              break
+	                              ;;
+	                esac
+	            done
+		fi
+	else
+        echo "!- No old version deteced"
+        echo "!- Extracting the new php version to /usr/src/php"
+        tar xzf php-$p.tar.gz -C /usr/src/php
         fi
 }
 
@@ -322,6 +338,40 @@ NOAPTACTION()
 }
 
 
+###define automatic function
+AUTOMATIC()
+{
+	if [[ -L "/php-sockets/php-current-$phpversion" ]]; then
+	        if [[ "$auto" == "true" ]]; then
+	                rm /php-sockets/php-current-$phpversion
+	                ln -s /php-sockets/php-$p-fpm /php-sockets/php-current-$phpversion
+	                chown -h www-data:www-data /php-sockets/php-current-$phpversion
+	        elif [[ "$auto" != "true" ]]; then
+	        echo "!- The socket \"php-current-$phpversion\" already exists!"
+	        echo "!- Do you want the new installed phpversion to become the current socket?"
+	        select yn in "\"Yes\" [press 1]" "\"No\" [press 2]"; do
+	                case $yn in
+	                        "\"Yes\" [press 1]" ) echo "!- NOTE: This only changed the symlink, the old php is still running!"
+	                                rm /php-sockets/php-current-$phpversion
+	                                ln -s /php-sockets/php-$p-fpm /php-sockets/php-current-$phpversion
+	                                chown -h www-data:www-data /php-sockets/php-current-$phpversion
+	                                echo "!- Please consider to deactivate the obsolete versions for security and performance reasons!"
+	                                break
+	                                ;;
+	                        "\"No\" [press 2]" ) echo "!- Ok, the current symlink will remain"
+	                                echo "!- Please consider to deactivate the obsolete versions for security and performance reasons!"
+	                                break
+	                                ;;
+	                esac
+	        done
+		fi
+        else
+        ln -s /php-sockets/php-$p-fpm /php-sockets/php-current-$phpversion
+        chown -h www-data:www-data /php-sockets/php-current-$phpversion
+	fi
+}
+
+
 ###define webtype function
 WEBTYPE()
 {
@@ -397,7 +447,7 @@ CRMTYPE()
 
 
 ###check opts
-while getopts "p:a:t:h" option; do
+while getopts "p:a:t:h:n" option; do
    case "${option}" in
       h)
         HELP
@@ -413,6 +463,9 @@ while getopts "p:a:t:h" option; do
       t)
         t=${OPTARG}
         ;;
+      n)
+      	auto=true
+      	;;
       \?)
         echo "!- Invalid Argument!"
         echo "!- Please check the help function below!"
@@ -428,7 +481,7 @@ shift $((OPTIND -1))
 ###starting script
 echo "!- Start script -!"
 echo "!----"
-echo "!- c-install-php.sh - (c) by C333D"
+echo "!- c-install-php.sh"
 echo "!----"
 CHECKDEPENDENCIES
 CHECKPARAM-P
@@ -507,7 +560,7 @@ sed 's/X.X.X/'"${p}"'/g' c-php-X.X.X-fpm > /etc/init.d/php-$p-fpm
 echo "!- Downloading redis extension"
 wget https://pecl.php.net/get/redis -O /opt/php-$p-fpm/etc/redis.tgz > /dev/null 2>&1
 echo "!- Installing redis extension"
-cd /opt/php-$p-fpm/etc/ && yes "" | ../bin/pecl -c pear.conf install redis.tgz  > /dev/null 2>&1
+cd /opt/php-$p-fpm/etc/ && yes "" | ../bin/pecl -C pear.conf install redis.tgz  > /dev/null 2>&1
 if [ -f "$basedir/redis.tgz" ]; then
         rm $basedir/redis.tgz
 fi
@@ -517,6 +570,11 @@ fi
 echo "!- Starting php"
 chmod +x /etc/init.d/php-$p-fpm
 /etc/init.d/php-$p-fpm start > /dev/null 2>&1
+
+
+
+###Symlink to current socket
+AUTOMATIC
 
 
 ###chown log
@@ -530,22 +588,22 @@ update-rc.d php-$p-fpm defaults
 
 
 ###Check if php is running
-echo "!- Check if php is startable"
+echo "!- Check if php started correctly"
 if pgrep -f php-$p-fpm >/dev/null 2>&1; then
         echo "!- PHP successfully installed and started!"
-        echo "!-----------------------------------------------------------------------------!"
-        echo "!- How to add the php handler to your apache vhost                           -!"
-        echo "!-                                                                           -!"
-        echo "!- Enable apache modules:                                                    -!"
-        echo "!- a2enmod proxy proxy_fcgi                                                  -!"
-        echo "!-                                                                           -!"
-        echo "!- Insert the following to your apache vhost configuration:                  -!"
-        echo "!- <FilesMatch \.php$>                                                       -!"
-        echo "!- SetHandler \"proxy:unix:/php-sockets/php-$p-fpm|fcgi://localhost/\"     -!"
-        echo "!- </FilesMatch>                                                             -!"
-        echo "!- AddType text/html .php                                                    -!"
-        echo "!-                                                                           -!"
-        echo "!-----------------------------------------------------------------------------!"
+        echo "!------------------------------------------------------------------------------!"
+        echo "!- How to add the php handler to your apache vhost                            -!"
+        echo "!-                                                                            -!"
+        echo "!- Enable apache modules:                                                     -!"
+        echo "!- a2enmod proxy proxy_fcgi                                                   -!"
+        echo "!-                                                                            -!"
+        echo "!- Insert the following to your apache vhost configuration:                   -!"
+        echo "!- <FilesMatch \.php$>                                                        -!"
+        echo "!- SetHandler \"proxy:unix:/php-sockets/php-current-$phpversion|fcgi://localhost/\"     -!"
+        echo "!- </FilesMatch>                                                              -!"
+        echo "!- AddType text/html .php                                                     -!"
+        echo "!-                                                                            -!"
+        echo "!------------------------------------------------------------------------------!"
         echo "!- Exit script -!"
         exit 0;
 else
