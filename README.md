@@ -18,15 +18,14 @@ Clone git repo, chmod +x c-install-php.sh, execute script as shown below!
 
 Specify the following options including the arguments as you need them:
 ```
-PHP version:   -p "PHPVERSION"
-APT actions:   -a "yes|ja" or "no|nein"
-TYPE:          -t "web|typo" or "crm"
-AUTOMATIC:     -n
-FOR HELP:      -h
+PHP version:			-p "PHPVERSION"
+APT actions:			-a "yes|ja" or "no|nein"
+TYPE:				-t "web|typo" or "crm"
+AUTOMATIC/NO USER INTERACTION:	-n
+CUSTOM TAG/PREFIX:		-c "string"
+FOR HELP:			-h
 
 ```
-If "-n" is specified then any user interactions are omitted. This means that the current php websocket will be overwritten if there is already an installed php version of the same branch!
-
 
 <h2>Syntax:</h2>
 
@@ -36,11 +35,18 @@ If "-n" is specified then any user interactions are omitted. This means that the
   - Example 1: 
 		./c-install-php.sh -p 7.4.24 -a no -t typo -n
   - Example 2: 
-		sudo ./c-install-php.sh -p 8.0.11 -a yes -t crm 
+		sudo bash c-install-php.sh -p 8.0.11 -a yes -t crm -c audi 
 
 ```
+<h2>Note:</h2>
 
-**Note that the following files need to be present in your current work directory:**
+The parameter "-p", "-a" and "-t" are required - the other ones are optional!
+
+If "-n" is specified then any user interactions are omitted. This means that the current php websocket will be overwritten if there is already an installed php version of the same branch!
+
+If "-c custom-string" is specified then php will be installed to /opt/your-php-version-YOUR-CUSTOM-STRING/ [this is useful if you want to installed the same version multiple times]!
+
+**The following files need to be present in your current work directory:**
 - c-php.ini 
 - c-php-fpm.conf 
 - c-www.conf 

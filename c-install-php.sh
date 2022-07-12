@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# c-install-php.sh - (c) by C333D 
+# c-install-php.sh - (c) by C333D
 # build v2.2
 #
 
@@ -18,11 +18,17 @@ HELP()
         echo "!- Install and configure any php-fpm version automatically.                    -!"
         echo "!-                                                                             -!"
         echo "!- Usage:                                                                      -!"
-        echo "!- Specify the following options including the arguments as you need them:     -!"
-        echo "!- PHP version:   -p \"PHPVERSION\"                                              -!"
-        echo "!- APT actions:   -a \"yes|ja\" or \"no|nein\"                                     -!"
-        echo "!- TYPE:          -t \"web|typo\" or \"crm\"                                       -!"
-	echo "!- AUTOMATIC:     -n                                                           -!"
+        echo "!- Specify the following options including the arguments as you need them      -!"
+	echo "!-                                                                             -!"
+	echo "!- ---REQUIERD---                                                              -!"
+        echo "!- PHP version:                       -p \"PHPVERSION\"                          -!"
+        echo "!- APT actions:                       -a \"yes|ja\" or \"no|nein\"                 -!"
+        echo "!- TYPE:                              -t \"web|typo\" or \"crm\"                   -!"
+	echo "!-                                                                             -!"        
+        echo "!- ---OPTIONAL---                                                              -!"
+	echo "!- AUTOMATIC/NO USER INTERACTION:     -n                                       -!"
+	echo "!- TAG/PREFIX:                        -c \"string\"                              -!"
+	echo "!- HELP:                              -h                                       -!"
         echo "!-                                                                             -!"
         echo "!- Syntax:                                                                     -!"
         echo "!- ./c-install-php.sh -p PHPVERSION -a yes|no -t typo|web|crm                  -!"
@@ -30,13 +36,15 @@ HELP()
         echo "!- Example 1:                                                                  -!"
         echo "!- ./c-install-php.sh -p 7.4.24 -a no -t typo -n                               -!"
         echo "!- Example 2:                                                                  -!"
-        echo "!- sudo ./c-install-php.sh -p 8.0.11 -a yes -t crm                             -!"
+        echo "!- sudo bash c-install-php.sh -p 8.0.11 -a yes -t crm -c audi                  -!"
         echo "!-                                                                             -!"
         echo "!- The following files need to be present in your current work directory:      -!"
         echo "!- 1. c-php.ini                                                                -!"
         echo "!- 2. c-php-fpm.conf                                                           -!"
         echo "!- 3. c-www.conf                                                               -!"
         echo "!- 4. c-php-X.X.X-fpm                                                          -!"
+        echo "!-                                                                             -!"
+        echo "!- Check README.md for more detailed instructions                              -!"
         echo "!-------------------------------------------------------------------------------!"
 }
 
@@ -124,6 +132,28 @@ else
 fi
 }
 
+CHECKPARAM-C()
+{
+if [ -z "${c}" ]; then
+	echo "!- No custom prefix specified - skipping" 
+else
+	if [[ $c = *[[:space:]]* ]]; then
+		echo "!- Option \"-c $c\" contains a space, which is not allowed!"
+		echo "!- Please check the help function below!"
+        	echo "!- "
+	        HELP
+	        exit 1;
+	else
+		c="-${c}"
+	        echo "!- You have specified a custom prefix"
+	        echo "!- This means php will be installed in the following folder:"
+	        echo "!- \"/opt/php-$p-fpm$c\""
+		echo "!- If this is not wanted, press Ctrl+C within the next 10 seconds!"
+		sleep 10
+	fi
+fi
+}
+
 
 ###define checklibcclient function
 CHECKLIBCCLIENT()
@@ -188,15 +218,15 @@ DOWNLOADPHP()
 {
 	CHECKDIR
         echo "!- Checking if php-$p already exists"
-        if [[ -d "/usr/src/php/php-$p/" || -d "/opt/php-$p-fpm/" ]]; then
+        if [[ -d "/usr/src/php/php-$p/" || -d "/opt/php-$p-fpm$c/" ]]; then
 		if [[ "$auto" == "true" ]]; then
 			if [ -d "/usr/src/php/php-$p/" ]; then
                         	echo "!- Move old php-$p source dir to php-$p-backup-$nower"
 	                        rsync -a --ignore-existing --remove-source-files /usr/src/php/php-$p/ /usr/src/php/php-$p-backup-$nower/ && find /usr/src/php/php-$p -depth -type d -empty -delete
                         fi
-                        if [ -d "/opt/php-$p-fpm/" ]; then
-	                        echo "!- Move old php-$p install dir to php-$p-fpm-backup-$nower"
-                                rsync -a --ignore-existing --remove-source-files /opt/php-$p-fpm/ /opt/php-$p-fpm-backup-$nower/ && find /opt/php-$p-fpm -depth -type d -empty -delete
+                        if [ -d "/opt/php-$p-fpm$c/" ]; then
+	                        echo "!- Move old php-$p install dir to php-$p-fpm$c-backup-$nower"
+                                rsync -a --ignore-existing --remove-source-files /opt/php-$p-fpm$c/ /opt/php-$p-fpm$c-backup-$nower/ && find /opt/php-$p-fpm$c -depth -type d -empty -delete
                         fi
                         echo "!- Extracting the new php version to /usr/src/php"
                         tar xzf php-$p.tar.gz -C /usr/src/php
@@ -209,9 +239,9 @@ DOWNLOADPHP()
 	                                 echo "!- Move old php-$p source dir to php-$p-backup-$nower"
 	                                 rsync -a --ignore-existing --remove-source-files /usr/src/php/php-$p/ /usr/src/php/php-$p-backup-$nower/ && find /usr/src/php/php-$p -depth -type d -empty -delete
 	                              fi
-	                              if [ -d "/opt/php-$p-fpm/" ]; then
-	                                 echo "!- Move old php-$p install dir to php-$p-fpm-backup-$nower"
-	                                 rsync -a --ignore-existing --remove-source-files /opt/php-$p-fpm/ /opt/php-$p-fpm-backup-$nower/ && find /opt/php-$p-fpm -depth -type d -empty -delete
+	                              if [ -d "/opt/php-$p-fpm$c/" ]; then
+	                                 echo "!- Move old php-$p install dir to php-$p-fpm$c-backup-$nower"
+	                                 rsync -a --ignore-existing --remove-source-files /opt/php-$p-fpm$c/ /opt/php-$p-fpm$c-backup-$nower/ && find /opt/php-$p-fpm$c -depth -type d -empty -delete
 	                              fi
 	                              echo "!- Extracting the new php version to /usr/src/php"
 	                              tar xzf php-$p.tar.gz -C /usr/src/php
@@ -338,67 +368,33 @@ NOAPTACTION()
 }
 
 
-###define automatic function
-AUTOMATIC()
-{
-	if [[ -L "/php-sockets/php-current-$phpversion" ]]; then
-	        if [[ "$auto" == "true" ]]; then
-	                rm /php-sockets/php-current-$phpversion
-	                ln -s /php-sockets/php-$p-fpm /php-sockets/php-current-$phpversion
-	                chown -h www-data:www-data /php-sockets/php-current-$phpversion
-	        elif [[ "$auto" != "true" ]]; then
-	        echo "!- The socket \"php-current-$phpversion\" already exists!"
-	        echo "!- Do you want the new installed phpversion to become the current socket?"
-	        select yn in "\"Yes\" [press 1]" "\"No\" [press 2]"; do
-	                case $yn in
-	                        "\"Yes\" [press 1]" ) echo "!- NOTE: This only changed the symlink, the old php is still running!"
-	                                rm /php-sockets/php-current-$phpversion
-	                                ln -s /php-sockets/php-$p-fpm /php-sockets/php-current-$phpversion
-	                                chown -h www-data:www-data /php-sockets/php-current-$phpversion
-	                                echo "!- Please consider to deactivate the obsolete versions for security and performance reasons!"
-	                                break
-	                                ;;
-	                        "\"No\" [press 2]" ) echo "!- Ok, the current symlink will remain"
-	                                echo "!- Please consider to deactivate the obsolete versions for security and performance reasons!"
-	                                break
-	                                ;;
-	                esac
-	        done
-		fi
-        else
-        ln -s /php-sockets/php-$p-fpm /php-sockets/php-current-$phpversion
-        chown -h www-data:www-data /php-sockets/php-current-$phpversion
-	fi
-}
-
-
 ###define webtype function
 WEBTYPE()
 {
                 echo "!- Configuring php for \"WEB|TYPO\""
                 echo "!- This process can take several minutes depending on your system!"
                 if [[ $phpversion == "7.4" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear >> $log
 			echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.3" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-zlib --with-gd --without-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --enable-mysqlnd --enable-intl --without-libzip --with-sodium --with-password-argon2 --with-mysql-sock=/var/run/mysqld/mysqld.sock >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-zlib --with-gd --without-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --enable-mysqlnd --enable-intl --without-libzip --with-sodium --with-password-argon2 --with-mysql-sock=/var/run/mysqld/mysqld.sock >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.1" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/run/mysqld/mysqld.sock --enable-mysqlnd >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/run/mysqld/mysqld.sock --enable-mysqlnd >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.0" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --enable-exif --enable-bcmath --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-mysql-sock=/var/run/mysqld/mysqld.sock --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --with-xmlrpc --with-xsl --enable-opcache --enable-fpm >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --enable-exif --enable-bcmath --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-mysql-sock=/var/run/mysqld/mysqld.sock --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --with-xmlrpc --with-xsl --enable-opcache --enable-fpm >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "5.6" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
 		elif [[ $phpversion == "8.0" ]] || [[ $phpversion == "8.1" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 else
@@ -415,27 +411,27 @@ CRMTYPE()
                 echo "!- Configuring php for \"CRM\""
                 echo "!- This process can take several minutes depending on your system!"
                 if [[ $phpversion == "7.4" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear --with-imap --with-imap-ssl --with-ldap >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear --with-imap --with-imap-ssl --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.3" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-zlib --with-gd --without-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --enable-mysqlnd --enable-intl --without-libzip --with-sodium --with-password-argon2 --with-imap --with-imap-ssl --with-mysql-sock=/var/run/mysqld/mysqld.sock --with-ldap >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-zlib --with-gd --without-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --enable-mysqlnd --enable-intl --without-libzip --with-sodium --with-password-argon2 --with-imap --with-imap-ssl --with-mysql-sock=/var/run/mysqld/mysqld.sock --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.1" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/run/mysqld/mysqld.sock --enable-mysqlnd --with-ldap >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/run/mysqld/mysqld.sock --enable-mysqlnd --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "7.0" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --enable-exif --enable-bcmath --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-mysql-sock=/var/run/mysqld/mysqld.sock --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --with-xmlrpc --with-xsl --enable-opcache --enable-fpm --with-ldap >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --with-pdo-pgsql --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --enable-exif --enable-bcmath --with-mhash --enable-zip --with-pcre-regex --with-pdo-mysql --with-mysqli --with-mysql-sock=/var/run/mysqld/mysqld.sock --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --with-xmlrpc --with-xsl --enable-opcache --enable-fpm --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "5.6" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear --with-ldap >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --with-zlib-dir --with-freetype-dir --enable-mbstring --with-libxml-dir=/usr --enable-soap --enable-calendar --with-curl --with-mcrypt --with-zlib --with-gd --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --enable-zip --with-pcre-regex --with-mysqli --with-jpeg-dir=/usr --with-png-dir=/usr --enable-gd-native-ttf --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-opcache --without-pdo-sqlite --without-pgsql --enable-sockets --disable-pdo --enable-tokenizer --with-pear --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log 
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 elif [[ $phpversion == "8.0" ]] || [[ $phpversion == "8.1" ]]; then
-                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear --with-imap --with-imap-ssl --with-ldap >> $log
+                        cd /usr/src/php/php-$p/ && ./configure --prefix=/opt/php-$p-fpm$c --without-pdo-pgsql --with-zlib-dir --enable-mbstring --with-freetype --with-libxml --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --without-pgsql --disable-rpath --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --with-libdir=/lib/x86_64-linux-gnu --enable-ftp --with-kerberos --with-gettext --enable-fpm --enable-bcmath --enable-tokenizer --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-mysqlnd --enable-intl --with-sodium --with-password-argon2 --enable-exif --with-pcre-jit --with-pear --with-imap --with-imap-ssl --with-ldap >> $log
                         echo -e "\n\n----------------------------\nCONFIGURE FINISHED\n$(date)\n----------------------------\n\n" >> $log
                         echo "!- Configuration done - check logfile \"$log\" for further information"
                 else
@@ -446,8 +442,43 @@ CRMTYPE()
 }
 
 
+###define automatic function
+AUTOMATIC()
+{
+        if [[ -L "/php-sockets/php-current-$phpversion" ]]; then
+                if [[ "$auto" == "true" ]]; then
+			echo "!- The socket \"php-current-$phpversion\" already exists!"
+			echo "!- Hence you specifed \"automatic/no user interaction\" the current socket WILL NOT BE OVERWRITTEN!"
+			echo "!- The new installed phpversion will be available through the websocket:"
+			echo "!- \"/php-sockets/php-$p-fpm$c\""
+                elif [[ "$auto" != "true" ]]; then
+                echo "!- The socket \"php-current-$phpversion\" already exists!"
+                echo "!- Do you want the new installed phpversion to become the current socket?"
+                select yn in "\"Yes\" [press 1]" "\"No\" [press 2]"; do
+                        case $yn in
+                                "\"Yes\" [press 1]" ) echo "!- NOTE: This only changed the symlink, the old php is still running!"
+                                        rm /php-sockets/php-current-$phpversion
+                                        ln -s /php-sockets/php-$p-fpm$c /php-sockets/php-current-$phpversion
+                                        chown -h www-data:www-data /php-sockets/php-current-$phpversion
+                                        echo "!- Please consider to deactivate the obsolete versions for security and performance reasons!"
+                                        break
+                                        ;;
+                                "\"No\" [press 2]" ) echo "!- Ok, the current symlink will remain"
+                                        echo "!- Please consider to deactivate the obsolete versions for security and performance reasons!"
+                                        break
+                                        ;;
+                        esac
+                done
+                fi
+        else
+        ln -s /php-sockets/php-$p-fpm$c /php-sockets/php-current-$phpversion
+        chown -h www-data:www-data /php-sockets/php-current-$phpversion
+        fi
+}
+
+
 ###check opts
-while getopts "p:a:t:h:n" option; do
+while getopts "p:a:t:c:hn" option; do
    case "${option}" in
       h)
         HELP
@@ -466,6 +497,9 @@ while getopts "p:a:t:h:n" option; do
       n)
       	auto=true
       	;;
+      c)
+        c=${OPTARG}
+        ;;
       \?)
         echo "!- Invalid Argument!"
         echo "!- Please check the help function below!"
@@ -487,6 +521,7 @@ CHECKDEPENDENCIES
 CHECKPARAM-P
 CHECKPARAM-A
 CHECKPARAM-T
+CHECKPARAM-C
 DOWNLOADPHP
 if [[ $a == [yY] || $a == [yY][eE][sS] || $a == [jJ] || $a == [jJ][aA] ]];then
 	APTACTION
@@ -521,46 +556,47 @@ cd /usr/src/php/php-$p/ && make install > /dev/null 2>&1
 ###apply config changes
 echo "!- Appling needed config files"
 cd $basedir/
-sed 's/X.X.X/'"${p}"'/g' c-php-fpm.conf > /opt/php-$p-fpm/etc/php-fpm.conf
-if [ ! -f "/opt/php-$p-fpm/etc/php-fpm.conf" ]; then
-        echo "!- /opt/php-$p-fpm/etc/php-fpm.conf could not be created!"
+
+sed 's/X.X.X-fpm/'"${p}-fpm${c}"'/g' c-php-fpm.conf > /opt/php-$p-fpm$c/etc/php-fpm.conf
+if [ ! -f "/opt/php-$p-fpm$c/etc/php-fpm.conf" ]; then
+        echo "!- /opt/php-$p-fpm$c/etc/php-fpm.conf could not be created!"
 fi
-sed 's/X.X.X/'"${p}"'/g' c-www.conf > /opt/php-$p-fpm/etc/php-fpm.d/www.conf
-if [ ! -f "/opt/php-$p-fpm/etc/php-fpm.d/www.conf" ]; then
-        echo "!- /opt/php-$p-fpm/etc/php-fpm.d/www.conf could not be created!"
+sed 's/X.X.X-fpm/'"${p}-fpm${c}"'/g' c-www.conf > /opt/php-$p-fpm$c/etc/php-fpm.d/www.conf
+if [ ! -f "/opt/php-$p-fpm$c/etc/php-fpm.d/www.conf" ]; then
+        echo "!- /opt/php-$p-fpm$c/etc/php-fpm.d/www.conf could not be created!"
 fi
-sed 's/X.X.X/'"${p}"'/g' c-php.ini > /opt/php-$p-fpm/lib/php.ini
-if [ ! -f "/opt/php-$p-fpm/lib/php.ini" ]; then
-        echo "!- /opt/php-$p-fpm/lib/php.ini could not be created!"
+sed 's/X.X.X-fpm/'"${p}-fpm${c}"'/g' c-php.ini > /opt/php-$p-fpm$c/lib/php.ini
+if [ ! -f "/opt/php-$p-fpm$c/lib/php.ini" ]; then
+        echo "!- /opt/php-$p-fpm$c/lib/php.ini could not be created!"
 fi
 
 if [[ $p == "7.4."* ]]; then
-        sed -i 's/KKKKKKKKK/20190902/g' /opt/php-$p-fpm/lib/php.ini
+        sed -i 's/KKKKKKKKK/20190902/g' /opt/php-$p-fpm$c/lib/php.ini
 elif [[ $p == "7.3."* ]]; then
-        sed -i 's/KKKKKKKKK/20180731/g' /opt/php-$p-fpm/lib/php.ini
+        sed -i 's/KKKKKKKKK/20180731/g' /opt/php-$p-fpm$c/lib/php.ini
 elif [[ $p == "7.1."* ]]; then
-        sed -i 's/KKKKKKKKK/20160303/g' /opt/php-$p-fpm/lib/php.ini
+        sed -i 's/KKKKKKKKK/20160303/g' /opt/php-$p-fpm$c/lib/php.ini
 elif [[ $p == "5.6."* ]]; then
-        sed -i 's/KKKKKKKKK/20131226/g' /opt/php-$p-fpm/lib/php.ini
+        sed -i 's/KKKKKKKKK/20131226/g' /opt/php-$p-fpm$c/lib/php.ini
 elif [[ $p == "8.0."* ]]; then
-        sed -i 's/KKKKKKKKK/20200930/g' /opt/php-$p-fpm/lib/php.ini
+        sed -i 's/KKKKKKKKK/20200930/g' /opt/php-$p-fpm$c/lib/php.ini
 elif [[ $p == "8.1."* ]]; then
-        sed -i 's/KKKKKKKKK/20210902/g' /opt/php-$p-fpm/lib/php.ini
+        sed -i 's/KKKKKKKKK/20210902/g' /opt/php-$p-fpm$c/lib/php.ini
 else
                 echo "!- IMPORTANT:"
-                echo "!- Cannot change opcache.so path in /opt/php-$p-fpm/lib/php.ini"
+                echo "!- Cannot change opcache.so path in /opt/php-$p-fpm$c/lib/php.ini"
                 echo "!- You need to change it manually after!"
 fi
 
 echo "!- Creating startup-script"
-sed 's/X.X.X/'"${p}"'/g' c-php-X.X.X-fpm > /etc/init.d/php-$p-fpm
+sed 's/X.X.X-fpm/'"${p}-fpm${c}"'/g' c-php-X.X.X-fpm > /etc/init.d/php-$p-fpm$c
 
 
 ###download and install redis extension
 echo "!- Downloading redis extension"
-wget https://pecl.php.net/get/redis -O /opt/php-$p-fpm/etc/redis.tgz > /dev/null 2>&1
+wget https://pecl.php.net/get/redis -O /opt/php-$p-fpm$c/etc/redis.tgz > /dev/null 2>&1
 echo "!- Installing redis extension"
-cd /opt/php-$p-fpm/etc/ && yes "" | ../bin/pecl -C pear.conf install redis.tgz  > /dev/null 2>&1
+cd /opt/php-$p-fpm$c/etc/ && yes "" | ../bin/pecl -C pear.conf install redis.tgz  > /dev/null 2>&1
 if [ -f "$basedir/redis.tgz" ]; then
         rm $basedir/redis.tgz
 fi
@@ -568,8 +604,8 @@ fi
 
 ###start php
 echo "!- Starting php"
-chmod +x /etc/init.d/php-$p-fpm
-/etc/init.d/php-$p-fpm start > /dev/null 2>&1
+chmod +x /etc/init.d/php-$p-fpm$c
+/etc/init.d/php-$p-fpm$c start > /dev/null 2>&1
 
 
 ###Symlink to current socket
@@ -578,17 +614,17 @@ AUTOMATIC
 
 ###chown log
 echo "!- Chown log to www-data"
-chown www-data:www-data /var/log/php-$p-fpm.log
+chown www-data:www-data /var/log/php-$p-fpm$c.log
 
 
 ###enable autostart
 echo "!- Enabling autostart for php"
-update-rc.d php-$p-fpm defaults
+update-rc.d php-$p-fpm$c defaults
 
 
 ###Check if php is running
 echo "!- Check if php started correctly"
-if pgrep -f php-$p-fpm >/dev/null 2>&1; then
+if pgrep -f php-$p-fpm$c >/dev/null 2>&1; then
         echo "!- PHP successfully installed and started!"
         echo "!------------------------------------------------------------------------------!"
         echo "!- How to add the php handler to your apache vhost                            -!"
