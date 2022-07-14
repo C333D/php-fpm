@@ -585,7 +585,6 @@ echo "!- Check if php started correctly"
 if pgrep -f php-$p-fpm$c >/dev/null 2>&1; then
         echo "!----"
         echo "!- PHP successfully installed and started!"
-        echo "!- "
         echo "!- Exit script -!"
         echo "!---- "
         echo "!- \"How to add the php handler to your apache vhost\""
@@ -603,14 +602,13 @@ if pgrep -f php-$p-fpm$c >/dev/null 2>&1; then
         echo "!- </FilesMatch>"
         echo "!- AddType text/html .php"
         echo "!- "
-        echo "!- 3.) Safe configuration and reload apache"
+        echo "!- 3.) Safe configuration and reload apache:"
 	echo "!- /etc/init.d/apache2 reload"
 	echo "!----"
         exit 0;
 else
 	echo "!----"
         echo "!- Cannot confirm that php is running!"
-	echo "!- "
         echo "!- Exit script -!"
         echo "!----"
 fi
