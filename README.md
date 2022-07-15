@@ -23,7 +23,7 @@ APT actions:			-a "yes|ja" or "no|nein"
 TYPE:				-t "web|typo" or "crm"
 AUTOMATIC/NO USER INTERACTION:	-n                      //Warning! This WILL OVERWRITE the current socket!
 CUSTOM TAG/PREFIX:		-c "string"
-FOR HELP:			-h
+FOR HELP:			-h|--help
 
 ```
 
