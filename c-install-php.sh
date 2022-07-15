@@ -373,9 +373,11 @@ AUTOMATIC()
 {
         if [[ -L "/php-sockets/php-current-$phpversion" ]]; then
                 if [[ "$auto" == "true" ]]; then
-			echo "!- The socket \"php-current-$phpversion\" already exists!"
-			echo "!- Hence you specifed \"automatic/no user interaction\" the current socket will NOT be overwritten!"
-                        overwritten="false"
+                        echo "!- The socket \"php-current-$phpversion\" already exists!"
+                        echo "!- Hence you specifed \"automatic/no user interaction\" THE CURRENT SOCKET WILL BE OVERWRITTEN!"
+                        rm /php-sockets/php-current-$phpversion
+                        ln -s /php-sockets/php-$p-fpm$c /php-sockets/php-current-$phpversion
+                        chown -h www-data:www-data /php-sockets/php-current-$phpversion
                 elif [[ "$auto" != "true" ]]; then
                 echo "!- The socket \"php-current-$phpversion\" already exists!"
                 echo "!- Do you want the new installed phpversion to become the current socket?"
