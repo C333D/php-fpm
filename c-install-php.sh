@@ -26,7 +26,7 @@ HELP()
         echo "!- TYPE:                              -t \"web|typo\" or \"crm\"                   -!"
 	echo "!-                                                                             -!"        
         echo "!- ---OPTIONAL---                                                              -!"
-	echo "!- Automatic/No User Interaction:     -n                                       -!"
+	echo "!- Automatic/No User Interaction:     -n          //Warning! Check README.md!  -!"
 	echo "!- TAG/Prefix:                        -c \"STRING\"                              -!"
 	echo "!- HELP:                              -h                                       -!"
         echo "!-                                                                             -!"
