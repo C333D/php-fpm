@@ -21,7 +21,7 @@ Specify the following options including the arguments as you need them:
 PHP version:			-p "PHPVERSION"
 APT actions:			-a "yes|ja" or "no|nein"
 TYPE:				-t "web|typo" or "crm"
-AUTOMATIC/NO USER INTERACTION:	-n
+AUTOMATIC/NO USER INTERACTION:	-n                      //Warning! This WILL OVERWRITE the current socket!
 CUSTOM TAG/PREFIX:		-c "string"
 FOR HELP:			-h
 
@@ -42,7 +42,7 @@ FOR HELP:			-h
 
 The parameter "-p", "-a" and "-t" are required - the other ones are optional!
 
-If "-n" is specified then any user interactions are omitted. This means that the current php websocket will be overwritten if there is already an installed php version of the same branch!
+If "-n" is specified then any user interactions are omitted. **THIS MEANS THAT THE CURRENT PHP WEBSOCKET WILL BE OVERWRITTEN** if there is already an installed php version of the same branch! The exsiting php directorys will be backed up!
 
 If "-c custom-string" is specified then php will be installed to /opt/your-php-version-YOUR-CUSTOM-STRING/ [this is useful if you want to installed the same version multiple times]!
 
