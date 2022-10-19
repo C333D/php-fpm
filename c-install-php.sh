@@ -87,14 +87,14 @@ if [ -z "${p}" ]; then
 	MISSINGPARAM
 elif [[ `wget https://www.php.net/distributions/php-$p.tar.gz 2>&1 | grep '404: Not Found.'` ]]; then
         echo "!- Checking if provided php version is valid"
-        echo "!- This: \"$p\" is not a valid php version!"
+        echo "!-> This: \"$p\" is not a valid php version!"
         echo "!- Please specify a valid php version to continue"
         echo "!- "
         HELP
         exit 1;
 else 
 	echo "!- Checking if provided php version is valid"
-	echo "!- Php version is valid!"
+	echo "!-> Php version is valid!"
 fi
 }
 
@@ -104,14 +104,14 @@ if [ -z "${a}" ]; then
 	MISSINGPARAM
 elif [[ $a != [yY] && $a != [yY][eE][sS] && $a != [jJ] && $a != [jJ][aA] && $a != [nN] && $a != [nN][oO] && $a != [nN][eE][iI][nN] ]]; then
 	echo "!- Checking if provided apt action option is valid"
-        echo "!- Invalid Option: \"-a $a\""
+        echo "!-> Invalid Option: \"-a $a\""
         echo "!- Please check the help function below!"
 	echo "!- "
 	HELP
 	exit 1;
 else
 	echo "!- Checking if provided apt action option is valid"
-	echo "!- Apt action is valid!"
+	echo "!-> Apt action is valid!"
 fi
 }
 
@@ -121,31 +121,32 @@ if [ -z "${t}" ]; then
 	MISSINGPARAM
 elif [[ $t != [tT] && $t != [wW] && $t != [tT][yY][pP][oO] && $t != [wW][eE][bB] && $t != [cC] && $t != [cC][rR][mM] ]]; then
 	echo "!- Checking if provided type option is valid"
-	echo "!- Invalid Option: \"-t $t\""
+	echo "!-> Invalid Option: \"-t $t\""
 	echo "!- Please check the help function below!"
 	echo "!- "
 	HELP
 	exit 1;
 else
 	echo "!- Checking if provided type option is valid"
-	echo "!- Type action is vaild!"
+	echo "!-> Type action is vaild!"
 fi
 }
 
 CHECKPARAM-C()
 {
+echo "!- Checking if custom prefix is specified and valid"
 if [ -z "${c}" ]; then
-	echo "!- No custom prefix specified - skipping" 
+	echo "!-> No custom prefix specified - skipping" 
 else
 	if [[ $c = *[[:space:]]* ]]; then
-		echo "!- Option \"-c $c\" contains a space, which is not allowed!"
+		echo "!-> Option \"-c $c\" contains a space, which is not allowed!"
 		echo "!- Please check the help function below!"
         	echo "!- "
 	        HELP
 	        exit 1;
 	else
 		c="-${c}"
-	        echo "!- You have specified a custom prefix"
+	        echo "!-> You have specified a custom prefix!"
 	        echo "!- This means php will be installed in the following folder:"
 	        echo "!- \"/opt/php-$p-fpm$c\""
 		echo "!- If this is not wanted, press Ctrl+C within the next 10 seconds!"
@@ -165,7 +166,7 @@ CHECKLIBCCLIENT()
                         echo "!- Linking libc-client"
                         ln -s /usr/lib/libc-client.a /usr/lib/x86_64-linux-gnu/libc-client.a
                 else
-                        echo "!- /usr/lib/x86_64-linux-gnu/libc-client.a already linked - skipping"
+                        echo "!-> /usr/lib/x86_64-linux-gnu/libc-client.a already linked - skipping"
         fi
 }
 
@@ -175,17 +176,17 @@ CHECKDIR()
 {
         echo "!- Creating directorys"
         if [ ! -d "/usr/src/php" ]; then
-                        echo "!- /usr/src/php created"
+                        echo "!-> /usr/src/php created"
                         mkdir /usr/src/php
                 else
-                        echo "!- /usr/src/php already exists - skipping"
+                        echo "!-> /usr/src/php already exists - skipping"
         fi
         if [ ! -d "/php-sockets" ]; then
-                        echo "!- /php-sockets created"
+                        echo "!-> /php-sockets created"
                         mkdir /php-sockets
                         chown -R www-data:www-data /php-sockets
                 else
-                        echo "!- /php-sockets already exists - skipping"
+                        echo "!-> /php-sockets already exists - skipping"
         fi
 }
 
@@ -231,7 +232,7 @@ DOWNLOADPHP()
                         echo "!- Extracting the new php version to /usr/src/php"
                         tar xzf php-$p.tar.gz -C /usr/src/php
 		elif [[ "$auto" != "true" ]]; then
-			echo "!- php-$p already exists! Backup the exsisting php version?"
+			echo "!-> php-$p already exists! Backup the exsisting php version?"
 			select yn in "\"Yes\" [press 1]" "\"No\" [press 2]"; do
 			case $yn in
 				"\"Yes\" [press 1]" ) echo "!- Backing up the old php version"
@@ -256,7 +257,7 @@ DOWNLOADPHP()
 	            done
 		fi
 	else
-        echo "!- No old version deteced"
+        echo "!-> No old version deteced"
         echo "!- Extracting the new php version to /usr/src/php"
         tar xzf php-$p.tar.gz -C /usr/src/php
         fi
@@ -275,7 +276,7 @@ APTACTION()
 			system=Debian
 			systemnumber=$(cat /etc/issue | grep Debian | cut -f3 -d" ")
                 else
-                         echo "!- Cannot detect current system version"
+                         echo "!-> Cannot detect current system version"
                          echo "!- No apt actions are performed!"
                          echo "!- Please install the needed dependencies manually"
                          echo "!- and rerun the script with the \"-a no\" option!"
@@ -284,7 +285,7 @@ APTACTION()
 		fi
                                                                                                                                 
                 if [[ $systemnumber == "22.04" ]] || [[ $systemnumber == "12" ]]; then
-                         echo "!- $system $systemnumber detected"
+                         echo "!-> $system $systemnumber detected"
                          echo "!- Starting apt update & install"
                          apt-get update > /dev/null 2>&1
                          CHECKBUILDNUMBER
@@ -292,7 +293,7 @@ APTACTION()
                          apt-get install zip unzip autoconf automake libtool libmcrypt-dev libsodium-dev libargon2-dev redis-server rsync -y > /dev/null 2>&1
 			 CHECKLIBCCLIENT
                 elif [[ $systemnumber == "20.04" ]] || [[ $systemnumber == "11" ]]; then
-                         echo "!- $system $systemnumber detected"
+                         echo "!-> $system $systemnumber detected"
                          echo "!- Starting apt update & install"
                          apt-get update > /dev/null 2>&1
                          CHECKBUILDNUMBER
@@ -300,7 +301,7 @@ APTACTION()
                          apt-get install zip unzip autoconf automake libtool libmcrypt-dev libsodium-dev libargon2-dev redis-server rsync -y > /dev/null 2>&1
 			 CHECKLIBCCLIENT
                 elif [[ $systemnumber == "18.04" ]] || [[ $systemnumber == "10" ]]; then
-                         echo "!- $system $systemnumber detected"
+                         echo "!-> $system $systemnumber detected"
                          echo "!- Starting apt update & install"
                          apt-get update > /dev/null 2>&1
                          CHECKBUILDNUMBER
@@ -308,7 +309,7 @@ APTACTION()
                          apt-get install zip unzip autoconf automake libtool libmcrypt-dev libsodium-dev libargon2-dev redis-server rsync -y > /dev/null 2>&1
 			 CHECKLIBCCLIENT
                 elif [[ $systemnumber == "16.04" ]] || [[ $systemnumber == "9" ]]; then
-                         echo "!- $system $systemnumber detected"
+                         echo "!-> $system $systemnumber detected"
                          echo "!- Starting apt update & install"
                          apt-get update > /dev/null 2>&1
                          CHECKBUILDNUMBER
@@ -329,7 +330,7 @@ APTACTION()
                          rm /usr/src/php/argon2/argon2.zip
                          cd $basedir
                 elif [[ $systemnumber == "14.04" ]] || [[ $systemnumber == "8" ]]; then
-                         echo "!- $system $systemnumber detected"
+                         echo "!-> $system $systemnumber detected"
                          echo "!- Starting apt update & install"
                          apt-get update > /dev/null 2>&1
                          CHECKBUILDNUMBER
@@ -350,7 +351,7 @@ APTACTION()
 			 rm /usr/src/php/argon2/argon2.zip
                          cd $basedir
                 else
-                         echo "!- Your system version is not supported yet"
+                         echo "!-> Your system version is not supported yet"
                          echo "!- No apt actions are performed!"
                          echo "!- Please install the needed dependencies manually"
                          echo "!- and rerun the script with the \"no\" option!"
@@ -497,7 +498,7 @@ echo "!- Configuration done - check logfile \"$log\" for further information"
 
 ###make php
 echo "!- Makeing php"
-echo "!- This process also can take several minutes depending on your system!"
+echo "!- This process can also take several minutes depending on your system!"
 cores=$(nproc)
 core=$(( $cores*75/100 ))
 make -j$core > /dev/null 2>&1
