@@ -563,6 +563,16 @@ if [ -f "$basedir/redis.tgz" ]; then
 fi
 
 
+###download and install imagick extension
+echo "!- Downloading imagick extension"
+wget https://pecl.php.net/get/imagick -O /opt/php-$p-fpm$c/etc/imagick.tgz > /dev/null 2>&1
+echo "!- Installing imagick extension"
+cd /opt/php-$p-fpm$c/etc/ | ../bin/pecl -C pear.conf install imagick.tgz  > /dev/null 2>&1
+if [ -f "$basedir/imagick.tgz" ]; then
+        rm $basedir/imagick.tgz
+fi
+
+
 ###start php
 echo "!- Starting php"
 chmod +x /etc/init.d/php-$p-fpm$c
